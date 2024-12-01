@@ -1,0 +1,54 @@
+h1 {
+    font-family: 'Arial', sans-serif;
+    color: #ffffff;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 35px;
+}
+
+.skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3rem;
+    color: white;
+    justify-content: center;
+}
+
+.skill {
+    display: flex;
+    align-items: center;
+    width: 45%;
+    margin-bottom: 1rem;
+}
+
+.label {
+    width: 40px;
+    font-weight: bold;
+    text-align: right;
+    margin-right: 30px;
+}
+
+.progress-bar {
+    position: relative;
+    flex-grow: 1;
+    height: 55px;
+    border: 3px solid white;
+    background-color: transparent;
+    display: flex;
+    margin-left: 10px;
+}
+
+.progress {
+    background-color: white;
+    height: 80%;
+    margin-bottom: 10px;
+    margin-top: 5.5px;
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+.percentage {
+    width: 40px;
+    text-align: left;
+    margin-left: 15px;
+}
