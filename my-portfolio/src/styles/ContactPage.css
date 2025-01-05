@@ -1,0 +1,52 @@
+h1 {
+    font-family: 'Arial', sans-serif;
+    color: #ffffff;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 35px;
+}
+
+.integrations-container {
+    display: grid;
+    justify-items: center;
+    justify-content: center;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    padding: 20px;
+    width: 70%;
+    margin: 0 auto;
+    margin-bottom: 80px;
+}
+
+
+.integration-box {
+    background-color: #221e1e;
+    border: 3px solid #fff;
+    color: #fff;
+    width: 300px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 10px;
+    transition: transform 0.3s ease-in-out;
+    text-decoration: none;
+}
+
+.integration-box a {
+    color: white;
+    text-decoration: none;
+    display: block;
+}
+
+.integration-box a:visited {
+    color: inherit;
+}
+
+.integration-box:hover {
+    transform: scale(1.05);
+    border-color: rgba(251, 99, 255, 0.8);
+}
+
+

@@ -1,0 +1,36 @@
+.img-profile {
+    width: 380px;
+    height: auto;
+    border-radius: 50%;
+    border: 2px solid #333;
+    object-fit: cover;
+}
+
+h1 {
+    font-family: 'Arial', sans-serif;
+    color: #ffffff;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 35px;
+}
+
+
+.decoration-image {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0.4;
+}
+
+
+.top-left {
+    top: 200px;
+    left: 10px;
+    width:250px;
+}
+
+.bottom-right {
+    bottom: 50px;
+    right: 50px;
+    width: 250px;
+    rotate: -30deg;
+}
