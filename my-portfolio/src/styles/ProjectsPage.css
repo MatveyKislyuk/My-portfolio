@@ -47,7 +47,6 @@
     text-decoration: underline;
 }
 
-/* Контейнер фильтра */
 .filter-container {
     text-align: center;
     margin-bottom: 20px;
@@ -72,6 +71,80 @@
 .filter-container select:focus {
     outline: none;
     border-color: rgba(251, 99, 255, 0.8);
+}
+
+
+.add-project-button {
+    background-color: rgba(251, 99, 255, 0.8);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+.add-project-button:hover {
+    background-color: rgba(251, 99, 255, 1);
+    transform: scale(1.05);
+}
+
+.modal-content select {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 2px solid #fff;
+    background-color: #221e1e;
+    color: #fff;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: border-color 0.3s ease-in-out;
+}
+
+.modal-content select:focus {
+    outline: none;
+    border-color: rgba(251, 99, 255, 0.8);
+}
+
+.modal-content option {
+    background-color: #221e1e;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.selected-technologies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.technology-tag {
+    background-color: rgba(251, 99, 255, 0.8);
+    color: #fff;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.technology-tag button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1rem;
+    margin-left: 5px;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+}
+
+.technology-tag button:hover {
+    color: #000;
 }
 
 .modal-overlay {
@@ -121,22 +194,38 @@
     font-size: 1.8rem;
 }
 
-.modal-content p {
-    margin-bottom: 20px;
+.modal-content input {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 10px;
     font-size: 1rem;
-    color: #ccc;
+    border: 2px solid #fff;
+    border-radius: 5px;
+    background-color: #221e1e;
+    color: #fff;
 }
 
-.modal-content a {
-    color: rgba(251, 99, 255, 0.8);
-    text-decoration: none;
-    font-size: 1.2rem;
+.modal-content input:focus {
+    outline: none;
+    border-color: rgba(251, 99, 255, 0.8);
 }
 
-.modal-content a:hover {
-    text-decoration: underline;
+.modal-content button {
+    background-color: rgba(251, 99, 255, 0.8);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+    margin-top: 15px;
 }
 
+.modal-content button:hover {
+    background-color: rgba(251, 99, 255, 1);
+    transform: scale(1.05);
+}
 
 @keyframes fadeIn {
     from {
