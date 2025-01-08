@@ -1,52 +1,72 @@
-h1 {
-    font-family: 'Arial', sans-serif;
-    color: #ffffff;
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin-bottom: 35px;
-}
-
-.integrations-container {
-    display: grid;
-    justify-items: center;
-    justify-content: center;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
-    padding: 20px;
-    width: 70%;
-    margin: 0 auto;
-    margin-bottom: 80px;
-}
-
-
-.integration-box {
+.contact-form {
     background-color: #221e1e;
     border: 3px solid #fff;
-    color: #fff;
-    width: 300px;
-    height: 200px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
     border-radius: 10px;
-    transition: transform 0.3s ease-in-out;
-    text-decoration: none;
+    padding: 30px;
+    max-width: 500px;
+    margin: 0 auto;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
 }
 
-.integration-box a {
-    color: white;
-    text-decoration: none;
+.contact-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #fff;
+    font-size: 1.8rem;
+}
+
+.contact-form label {
     display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
 }
 
-.integration-box a:visited {
-    color: inherit;
+.contact-form input,
+.contact-form textarea {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 2px solid #fff;
+    border-radius: 5px;
+    background-color: #333;
+    color: #fff;
+    font-size: 1rem;
 }
 
-.integration-box:hover {
-    transform: scale(1.05);
+.contact-form input:focus,
+.contact-form textarea:focus {
+    outline: none;
     border-color: rgba(251, 99, 255, 0.8);
+    background-color: #444;
 }
 
+.contact-form button {
+    width: 100%;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    color: #fff;
+    background-color: rgba(251, 99, 255, 0.8);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
 
+.contact-form button:hover {
+    background-color: rgba(251, 99, 255, 1);
+}
+
+.error {
+    color: #ff4d4d;
+    font-size: 0.9rem;
+    margin-top: -15px;
+    margin-bottom: 10px;
+}
+
+.success-message {
+    text-align: center;
+    color: #4caf50;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}

@@ -1,54 +1,94 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import '../styles/ContactPage.css';
-import {FaGithub, FaInstagram, FaTelegramPlane, FaTiktok, FaWhatsapp, FaYoutube} from "react-icons/fa";
+
+
+interface Errors {
+    name?: string;
+    email?: string;
+    message?: string;
+}
 
 export const ContactPage: React.FC = () => {
+
+    const [name, setName] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
+    const [message, setMessage] = useState<string>('');
+    const [errors, setErrors] = useState<Errors>({});
+    const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+
+
+    const validateForm = (): Errors => {
+        const newErrors: Errors = {};
+
+        if (!name) newErrors.name = 'Введите имя.';
+        if (!email) {
+            newErrors.email = 'Введите email.';
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            newErrors.email = 'Введите корректный email.';
+        }
+        if (!message) newErrors.message = 'Введите сообщение.';
+
+        return newErrors;
+    };
+
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+        e.preventDefault();
+
+        const newErrors = validateForm();
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        setErrors({});
+        setIsSubmitted(true);
+
+        setName('');
+        setEmail('');
+        setMessage('');
+    };
+
     return (
         <main>
             <Helmet>
                 <title>Контакты</title>
             </Helmet>
 
-            <h1>КОНТАКТЫ</h1>
+            <h1>Свяжитесь с нами</h1>
 
-            <div className="integrations-container">
-                <div className="integration-box" id="github">
-                    <a href="https://github.com/MatveyKislyuk" target="_blank">
-                        <FaGithub size={80}/>
-                    </a>
+            <form onSubmit={handleSubmit} className="contact-form">
+                <h2>Форма обратной связи</h2>
+                {isSubmitted && <p className="success-message">Спасибо! Ваше сообщение отправлено.</p>}
+                <div>
+                    <label>Имя:</label>
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                    />
+                    {errors.name && <p className="error">{errors.name}</p>}
                 </div>
-
-                <div className="integration-box" id="tiktok">
-                    <a href="https://www.tiktok.com/@stoppedqrsz?is_from_webapp=1&sender_device=pc" target="_blank">
-                        <FaTiktok size={80}/>
-                    </a>
+                <div>
+                    <label>Email:</label>
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    {errors.email && <p className="error">{errors.email}</p>}
                 </div>
-
-                <div className="integration-box" id="phone">
-                    <a href="https://t.me/kurtz005" target="_blank">
-                        <FaTelegramPlane size={80}/>
-                    </a>
+                <div>
+                    <label>Сообщение:</label>
+                    <textarea
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                    />
+                    {errors.message && <p className="error">{errors.message}</p>}
                 </div>
-
-                <div className="integration-box" id="instagram">
-                    <a href="/" target="_blank">
-                        <FaInstagram size={80}/>
-                    </a>
-                </div>
-
-                <div className="integration-box" id="whatsapp">
-                    <a href="/" target="_blank">
-                        <FaWhatsapp size={80}/>
-                    </a>
-                </div>
-
-                <div className="integration-box" id="youtube">
-                    <a href="/" target="_blank">
-                        <FaYoutube size={80}/>
-                    </a>
-                </div>
-            </div>
+                <button type="submit">Отправить</button>
+            </form>
         </main>
     );
 };
