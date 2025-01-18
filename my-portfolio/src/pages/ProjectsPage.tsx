@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../store';
 import { addProject } from '../store/projectsSlice';
 import { Project } from '../types/Project';
+import { v4 as uuidv4 } from 'uuid';
+import { useForm, Controller } from 'react-hook-form';
 import '../styles/ProjectsPage.css';
 
 export const ProjectsPage: React.FC = () => {
@@ -13,12 +15,13 @@ export const ProjectsPage: React.FC = () => {
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [isFormModalOpen, setIsFormModalOpen] = useState<boolean>(false);
 
-    const [newProject, setNewProject] = useState<Project>({
-        id: Date.now(),
-        title: '',
-        description: '',
-        technologies: [],
-        link: '',
+    const { handleSubmit, control, formState: { errors }, setValue, getValues, reset } = useForm<Project>({
+        defaultValues: {
+            title: '',
+            description: '',
+            link: '',
+            technologies: [],
+        },
     });
 
     const availableTechnologies = [
@@ -31,40 +34,26 @@ export const ProjectsPage: React.FC = () => {
         'Python',
     ];
 
-    const handleInputChange = (field: keyof Project, value: string) => {
-        setNewProject((prev) => ({
-            ...prev,
-            [field]: value,
-        }));
-    };
-
     const handleTechnologySelect = (value: string) => {
-        if (!newProject.technologies.includes(value)) {
-            setNewProject((prev) => ({
-                ...prev,
-                technologies: [...prev.technologies, value],
-            }));
-        }
+        setValue("technologies", [...getValues("technologies"), value]);
     };
 
     const removeTechnology = (tech: string) => {
-        setNewProject((prev) => ({
-            ...prev,
-            technologies: prev.technologies.filter((t) => t !== tech),
-        }));
+        const updatedTechnologies = getValues("technologies").filter((t: string) => t !== tech);
+        setValue("technologies", updatedTechnologies);
     };
 
-    const handleAddProject = () => {
-        if (newProject.title && newProject.description && newProject.technologies.length && newProject.link) {
-            dispatch(addProject({ ...newProject, id: Date.now() }));
-            setNewProject({ id: Date.now(), title: '', description: '', technologies: [], link: '' });
-            setIsFormModalOpen(false);
-        }
+    const onSubmit = (data: Project) => {
+        dispatch(addProject({ ...data, id: uuidv4() }));
+        reset();
+        setIsFormModalOpen(false);
     };
 
-    const filteredProjects = projects.filter((project) =>
-        selectedTech === 'All' ? true : project.technologies.includes(selectedTech)
-    );
+    const filteredProjects = useMemo(() => {
+        return projects.filter((project) =>
+            selectedTech === 'All' ? true : project.technologies.includes(selectedTech)
+        );
+    }, [projects, selectedTech]);
 
     const closeModal = () => {
         setSelectedProject(null);
@@ -74,12 +63,10 @@ export const ProjectsPage: React.FC = () => {
         <main>
             <h1>ПРОЕКТЫ</h1>
 
-            {/* Кнопка для открытия формы */}
             <button onClick={() => setIsFormModalOpen(true)} className="add-project-button">
                 Добавить проект
             </button>
 
-            {/* Модальное окно для формы */}
             {isFormModalOpen && (
                 <div className="modal-overlay" onClick={() => setIsFormModalOpen(false)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -87,56 +74,80 @@ export const ProjectsPage: React.FC = () => {
                             &times;
                         </button>
                         <h2>Добавить проект</h2>
-                        <input
-                            type="text"
-                            placeholder="Название проекта"
-                            value={newProject.title}
-                            onChange={(e) => handleInputChange('title', e.target.value)}
-                        />
-                        <input
-                            type="text"
-                            placeholder="Описание проекта"
-                            value={newProject.description}
-                            onChange={(e) => handleInputChange('description', e.target.value)}
-                        />
-                        <input
-                            type="text"
-                            placeholder="Ссылка на проект"
-                            value={newProject.link}
-                            onChange={(e) => handleInputChange('link', e.target.value)}
-                        />
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <Controller
+                                name="title"
+                                control={control}
+                                rules={{ required: 'Название проекта обязательно' }}
+                                render={({ field }) => (
+                                    <input
+                                        {...field}
+                                        type="text"
+                                        placeholder="Название проекта"
+                                    />
+                                )}
+                            />
+                            {errors.title && <span>{errors.title.message}</span>}
 
-                        <label htmlFor="technology-select">Выберите технологии:</label>
-                        <select
-                            id="technology-select"
-                            onChange={(e) => handleTechnologySelect(e.target.value)}
-                            value=""
-                        >
-                            <option value="" disabled>
-                                Добавить технологию
-                            </option>
-                            {availableTechnologies.map((tech) => (
-                                <option key={tech} value={tech}>
-                                    {tech}
+                            <Controller
+                                name="description"
+                                control={control}
+                                rules={{ required: 'Описание проекта обязательно' }}
+                                render={({ field }) => (
+                                    <input
+                                        {...field}
+                                        type="text"
+                                        placeholder="Описание проекта"
+                                    />
+                                )}
+                            />
+                            {errors.description && <span>{errors.description.message}</span>}
+
+                            <Controller
+                                name="link"
+                                control={control}
+                                rules={{ required: 'Ссылка на проект обязательна' }}
+                                render={({ field }) => (
+                                    <input
+                                        {...field}
+                                        type="text"
+                                        placeholder="Ссылка на проект"
+                                    />
+                                )}
+                            />
+                            {errors.link && <span>{errors.link.message}</span>}
+
+                            <label htmlFor="technology-select">Выберите технологии:</label>
+                            <select
+                                id="technology-select"
+                                onChange={(e) => handleTechnologySelect(e.target.value)}
+                                value=""
+                            >
+                                <option value="" disabled>
+                                    Добавить технологию
                                 </option>
-                            ))}
-                        </select>
+                                {availableTechnologies.map((tech) => (
+                                    <option key={tech} value={tech}>
+                                        {tech}
+                                    </option>
+                                ))}
+                            </select>
 
-                        <div className="selected-technologies">
-                            {newProject.technologies.map((tech) => (
-                                <span key={tech} className="technology-tag">
-                                    {tech}
-                                    <button onClick={() => removeTechnology(tech)}>&times;</button>
-                                </span>
-                            ))}
-                        </div>
+                            <div className="selected-technologies">
+                                {getValues("technologies").map((tech) => (
+                                    <span key={tech} className="technology-tag">
+                                        {tech}
+                                        <button onClick={() => removeTechnology(tech)}>&times;</button>
+                                    </span>
+                                ))}
+                            </div>
 
-                        <button onClick={handleAddProject}>Добавить проект</button>
+                            <button type="submit">Добавить проект</button>
+                        </form>
                     </div>
                 </div>
             )}
 
-            {/* Фильтр по технологиям */}
             <div className="filter-container">
                 <label htmlFor="technology-filter">Фильтр по технологии:</label>
                 <select
@@ -153,7 +164,6 @@ export const ProjectsPage: React.FC = () => {
                 </select>
             </div>
 
-            {/* Список проектов */}
             <div className="projects-container">
                 {filteredProjects.map((project) => (
                     <div
@@ -173,7 +183,6 @@ export const ProjectsPage: React.FC = () => {
                 ))}
             </div>
 
-            {/* Модальное окно для проекта */}
             {selectedProject && (
                 <div className="modal-overlay" onClick={closeModal}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
