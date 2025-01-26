@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../store';
-import { addProject } from '../store/projectsSlice';
+import { addProject, setProjects, fetchProjectsFromGitHub } from '../store/projectsSlice';
 import { Project } from '../types/Project';
 import { v4 as uuidv4 } from 'uuid';
 import { useForm, Controller } from 'react-hook-form';
@@ -10,10 +10,12 @@ import '../styles/ProjectsPage.css';
 export const ProjectsPage: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const projects = useSelector((state: RootState) => state.projects.items);
+    const projectStatus = useSelector((state: RootState) => state.projects.status);
 
     const [selectedTech, setSelectedTech] = useState<string>('All');
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [isFormModalOpen, setIsFormModalOpen] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const { handleSubmit, control, formState: { errors }, setValue, getValues, reset } = useForm<Project>({
         defaultValues: {
@@ -34,6 +36,25 @@ export const ProjectsPage: React.FC = () => {
         'Python',
     ];
 
+    useEffect(() => {
+        const savedProjects = localStorage.getItem('projects');
+
+        if (savedProjects) {
+            const existingProjects = JSON.parse(savedProjects);
+            if (existingProjects.length > 0 && projects.length === 0) {
+                dispatch(setProjects(existingProjects));
+            }
+        } else if (projects.length === 0 && projectStatus === 'idle') {
+            setIsLoading(true);
+            dispatch(fetchProjectsFromGitHub('MatveyKislyuk')).then((action) => {
+                if (action.type === 'projects/fetchFromGitHub/fulfilled') {
+                    localStorage.setItem('projects', JSON.stringify(action.payload));
+                    setIsLoading(false);
+                }
+            });
+        }
+    }, [dispatch, projects, projectStatus]);
+
     const handleTechnologySelect = (value: string) => {
         setValue("technologies", [...getValues("technologies"), value]);
     };
@@ -44,6 +65,8 @@ export const ProjectsPage: React.FC = () => {
     };
 
     const onSubmit = (data: Project) => {
+        const updatedProjects = [...projects, { ...data, id: uuidv4() }];
+        localStorage.setItem('projects', JSON.stringify(updatedProjects));
         dispatch(addProject({ ...data, id: uuidv4() }));
         reset();
         setIsFormModalOpen(false);
@@ -51,7 +74,7 @@ export const ProjectsPage: React.FC = () => {
 
     const filteredProjects = useMemo(() => {
         return projects.filter((project) =>
-            selectedTech === 'All' ? true : project.technologies.includes(selectedTech)
+            selectedTech === 'All' ? true : project.technologies?.includes(selectedTech)
         );
     }, [projects, selectedTech]);
 
@@ -59,9 +82,44 @@ export const ProjectsPage: React.FC = () => {
         setSelectedProject(null);
     };
 
+    const updateProjects = async () => {
+        setIsLoading(true);
+
+        try {
+            const newProjects = await dispatch(fetchProjectsFromGitHub('MatveyKislyuk'));
+
+            const savedProjects = JSON.parse(localStorage.getItem('projects') || '[]');
+
+            const allProjects = [
+                ...savedProjects,
+                ...newProjects.payload.filter(
+                    (newProject: Project) => !savedProjects.some((savedProject: Project) => savedProject.id === newProject.id)
+                ),
+            ];
+
+            dispatch(setProjects(allProjects));
+            localStorage.setItem('projects', JSON.stringify(allProjects));
+
+            setIsLoading(false);
+        } catch (error) {
+            console.error('Ошибка при обновлении проектов:', error);
+            setIsLoading(false);
+        }
+    };
+
     return (
         <main>
             <h1>ПРОЕКТЫ</h1>
+
+            <button onClick={updateProjects} disabled={isLoading} className="update-projects-button">
+                {isLoading ? 'Обновление...' : 'Обновить проекты'}
+            </button>
+
+            {isLoading && (
+                <div className="spinner">
+                    <div className="loader">Загрузка...</div>
+                </div>
+            )}
 
             <button onClick={() => setIsFormModalOpen(true)} className="add-project-button">
                 Добавить проект
@@ -165,22 +223,26 @@ export const ProjectsPage: React.FC = () => {
             </div>
 
             <div className="projects-container">
-                {filteredProjects.map((project) => (
-                    <div
-                        key={project.id}
-                        className="project-card"
-                        onClick={() => setSelectedProject(project)}
-                    >
-                        <h2>{project.title}</h2>
-                        <p>{project.description}</p>
-                        <p>
-                            <strong>Технологии:</strong> {project.technologies.join(', ')}
-                        </p>
-                        <a href={project.link} target="_blank" rel="noopener noreferrer">
-                            Открыть проект
-                        </a>
-                    </div>
-                ))}
+                {filteredProjects.length > 0 ? (
+                    filteredProjects.map((project) => (
+                        <div
+                            key={project.id}
+                            className="project-card"
+                            onClick={() => setSelectedProject(project)}
+                        >
+                            <h2>{project.title}</h2>
+                            <p>{project.description}</p>
+                            <p>
+                                <strong>Технологии:</strong> {project.technologies?.join(', ') || 'Не указано'}
+                            </p>
+                            <a href={project.link} target="_blank" rel="noopener noreferrer">
+                                Открыть проект
+                            </a>
+                        </div>
+                    ))
+                ) : (
+                    <p>Проекты не найдены по выбранной технологии.</p>
+                )}
             </div>
 
             {selectedProject && (
