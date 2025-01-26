@@ -4,8 +4,9 @@ import { RootState, AppDispatch } from '../store';
 import { addProject, setProjects, fetchProjectsFromGitHub } from '../store/projectsSlice';
 import { Project } from '../types/Project';
 import { v4 as uuidv4 } from 'uuid';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import '../styles/ProjectsPage.css';
+import { unwrapResult } from '@reduxjs/toolkit';
 
 export const ProjectsPage: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -37,23 +38,39 @@ export const ProjectsPage: React.FC = () => {
     ];
 
     useEffect(() => {
-        const savedProjects = localStorage.getItem('projects');
+        try {
+            const savedProjects = localStorage.getItem('projects');
 
-        if (savedProjects) {
-            const existingProjects = JSON.parse(savedProjects);
-            if (existingProjects.length > 0 && projects.length === 0) {
-                dispatch(setProjects(existingProjects));
-            }
-        } else if (projects.length === 0 && projectStatus === 'idle') {
-            setIsLoading(true);
-            dispatch(fetchProjectsFromGitHub('MatveyKislyuk')).then((action) => {
-                if (action.type === 'projects/fetchFromGitHub/fulfilled') {
-                    localStorage.setItem('projects', JSON.stringify(action.payload));
-                    setIsLoading(false);
+            if (savedProjects) {
+                try {
+                    const existingProjects = JSON.parse(savedProjects);
+                    if (existingProjects.length > 0 && projects.length === 0) {
+                        dispatch(setProjects(existingProjects));
+                    }
+                } catch (error) {
+                    console.error('Ошибка при парсинге данных из localStorage:', error);
                 }
-            });
+            } else if (projects.length === 0 && projectStatus === 'idle') {
+                setIsLoading(true);
+                dispatch(fetchProjectsFromGitHub('MatveyKislyuk')).then((action) => {
+                    try {
+                        const result = unwrapResult(action);
+                        localStorage.setItem('projects', JSON.stringify(result));
+                        setIsLoading(false);
+                    } catch (error) {
+                        console.error('Ошибка при обновлении проектов:', error);
+                        setIsLoading(false);
+                    }
+                }).catch((err) => {
+                    console.error('Ошибка при обновлении проектов:', err);
+                    setIsLoading(false);
+                });
+            }
+        } catch (error) {
+            console.error('Ошибка при работе с localStorage:', error);
         }
     }, [dispatch, projects, projectStatus]);
+
 
     const handleTechnologySelect = (value: string) => {
         setValue("technologies", [...getValues("technologies"), value]);
@@ -64,13 +81,18 @@ export const ProjectsPage: React.FC = () => {
         setValue("technologies", updatedTechnologies);
     };
 
-    const onSubmit = (data: Project) => {
-        const updatedProjects = [...projects, { ...data, id: uuidv4() }];
+    const onSubmit: SubmitHandler<Project> = (data: Project) => {
+        const projectId = uuidv4();
+        const newProject = { ...data, id: projectId };
+
+        const updatedProjects = [...projects, newProject];
         localStorage.setItem('projects', JSON.stringify(updatedProjects));
-        dispatch(addProject({ ...data, id: uuidv4() }));
+        dispatch(addProject(newProject));
+
         reset();
         setIsFormModalOpen(false);
     };
+
 
     const filteredProjects = useMemo(() => {
         return projects.filter((project) =>
@@ -92,9 +114,11 @@ export const ProjectsPage: React.FC = () => {
 
             const allProjects = [
                 ...savedProjects,
-                ...newProjects.payload.filter(
-                    (newProject: Project) => !savedProjects.some((savedProject: Project) => savedProject.id === newProject.id)
-                ),
+                ...(Array.isArray(newProjects.payload)
+                    ? newProjects.payload.filter(
+                        (newProject: Project) => !savedProjects.some((savedProject: Project) => savedProject.id === newProject.id)
+                    )
+                    : []),
             ];
 
             dispatch(setProjects(allProjects));

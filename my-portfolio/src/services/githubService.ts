@@ -1,11 +1,19 @@
 import axios from 'axios';
 import { Project } from '../types/Project';
 
-const GITHUB_API_URL = 'https://api.github.com';
 const DEFAULT_DESCRIPTION = 'Описание не указано';
 const ERROR_FETCH_LANGUAGES = 'Ошибка при загрузке языков для репозитория';
 const ERROR_FETCH_REPOS = 'Не удалось загрузить репозитории с GitHub. Проверьте имя пользователя и токен.';
-const ERROR_GENERAL_FETCH = 'Ошибка при загрузке репозиториев с GitHub';
+const ERROR_GENERAL_FETCH = 'Ошибка при загрузке репозиторов с GitHub';
+
+
+const axiosInstance = axios.create({
+    baseURL: 'https://api.github.com',
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
 
 interface GitHubRepo {
     id: string;
@@ -15,10 +23,18 @@ interface GitHubRepo {
 }
 
 export const fetchRepos = async (username: string, token?: string): Promise<Project[]> => {
+    if (!username || username.trim() === '') {
+        throw new Error('Имя пользователя не может быть пустым.');
+    }
+
     try {
-        const response = await axios.get<GitHubRepo[]>(`${GITHUB_API_URL}/users/${username}/repos`, {
-            headers: token ? { Authorization: `token ${token}` } : {},
-        });
+        if (token) {
+            axiosInstance.defaults.headers.common['Authorization'] = `token ${token}`;
+        } else {
+            delete axiosInstance.defaults.headers.common['Authorization'];
+        }
+
+        const response = await axiosInstance.get<GitHubRepo[]>(`/users/${username}/repos`);
 
         const repos = response.data;
 
@@ -55,9 +71,13 @@ export const fetchRepos = async (username: string, token?: string): Promise<Proj
 };
 
 const fetchRepoLanguages = async (username: string, repoName: string): Promise<string[]> => {
-    const response = await axios.get<Record<string, number>>(
-        `${GITHUB_API_URL}/repos/${username}/${repoName}/languages`
-    );
-
-    return Object.keys(response.data);
+    try {
+        const response = await axiosInstance.get<Record<string, number>>(
+            `/repos/${username}/${repoName}/languages`
+        );
+        return Object.keys(response.data);
+    } catch (error) {
+        console.error(`Ошибка при загрузке языков для репозитория "${repoName}":`, error);
+        return [];
+    }
 };
