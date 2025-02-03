@@ -1,9 +1,12 @@
 import React from 'react';
 import {FaBlenderPhone, FaGithub, FaTelegramPlane, FaTiktok} from 'react-icons/fa';
+import { useTheme } from '../context/ThemeContext';
 
 export const Footer: React.FC = () => {
+    const { theme } = useTheme();
+    
     return (
-        <footer>
+        <footer className={`footer ${theme}`}>
             <div className="content">
                 <a href="https://github.com/MatveyKislyuk" target="_blank">
                     <FaGithub size={35}/>

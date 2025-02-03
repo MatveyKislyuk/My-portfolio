@@ -19,10 +19,17 @@ h1 {
 p {
     font-family: 'Arial';
     font-weight: 200;
-    color: #d3d1d1;
     font-size: 1.25rem;
     margin-bottom: -15px;
 
+}
+
+p.dark {
+    color: #d3d1d1;
+}
+
+p.light {
+    color: #000000;
 }
 
 .decoration-image {

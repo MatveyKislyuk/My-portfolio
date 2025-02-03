@@ -7,8 +7,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import '../styles/ProjectsPage.css';
 import { unwrapResult } from '@reduxjs/toolkit';
+import { useTheme } from '../context/ThemeContext';
 
 export const ProjectsPage: React.FC = () => {
+    const { theme } = useTheme();
     const dispatch = useDispatch<AppDispatch>();
     const projects = useSelector((state: RootState) => state.projects.items);
     const projectStatus = useSelector((state: RootState) => state.projects.status);
@@ -133,7 +135,7 @@ export const ProjectsPage: React.FC = () => {
 
     return (
         <main>
-            <h1>ПРОЕКТЫ</h1>
+            <h1 className={`h1 ${theme}`}>ПРОЕКТЫ</h1>
 
             <button onClick={updateProjects} disabled={isLoading} className="update-projects-button">
                 {isLoading ? 'Обновление...' : 'Обновить проекты'}

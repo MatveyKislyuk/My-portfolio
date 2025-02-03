@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import '../styles/ContactPage.css';
+import { useTheme } from '../context/ThemeContext';
 
 
 interface Errors {
@@ -11,6 +12,7 @@ interface Errors {
 
 export const ContactPage: React.FC = () => {
 
+    const { theme } = useTheme();
     const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [message, setMessage] = useState<string>('');
@@ -56,7 +58,7 @@ export const ContactPage: React.FC = () => {
                 <title>Контакты</title>
             </Helmet>
 
-            <h1>Свяжитесь с нами</h1>
+            <h1 className={`h1 ${theme}`}>Свяжитесь с нами</h1>
 
             <form onSubmit={handleSubmit} className="contact-form">
                 <h2>Форма обратной связи</h2>
