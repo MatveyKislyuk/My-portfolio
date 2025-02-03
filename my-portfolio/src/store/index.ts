@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
-import projectsReducer from './projectsSlice';
+import projectsReducer, {ProjectStatus} from './projectsSlice';
 
 
 const preloadedState = {
     projects: {
         items: JSON.parse(localStorage.getItem('projects') || '[]'),
+        status: ProjectStatus.Idle,
+        error: null,
     },
 };
 

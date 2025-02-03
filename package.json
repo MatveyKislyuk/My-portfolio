@@ -8,10 +8,12 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.0",
+    "axios": "^1.7.9",
     "react-redux": "^9.2.0",
     "uuid": "^11.0.5"
   },
   "devDependencies": {
+    "@types/axios": "^0.9.36",
     "typescript": "^5.5.3"
   },
   "private": true
