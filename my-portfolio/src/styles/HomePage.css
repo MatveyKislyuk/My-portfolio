@@ -8,12 +8,18 @@
 
 h1 {
     font-family: 'Arial', sans-serif;
-    color: #ffffff;
     font-size: 2.5rem;
     font-weight: bold;
     margin-bottom: 35px;
 }
 
+h1.dark {
+    color: #ffffff;
+}
+
+h1.light {
+    color: #000000;
+}
 
 .decoration-image {
     position: absolute;
